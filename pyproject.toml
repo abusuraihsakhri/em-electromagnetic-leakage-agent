@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "em-electromagnetic-leakage-engine"
+version = "2.0.0"
+description = "Screaming Channels: RF / Electromagnetic Cryptographic Leakage Engine"
+readme = "README.md"
+authors = [{ name = "Dr. Abu Suraih Sakhri", email = "abusuraih@example.com" }]
+license = { text = "MIT" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Security/Cryptography",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+requires-python = ">=3.9"
+dependencies = []
+
+[project.scripts]
+em-electromagnetic-leakage-engine = "em_leakage_agent.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/abusuraihsakhri/em-electromagnetic-leakage-engine"
+Repository = "https://github.com/abusuraihsakhri/em-electromagnetic-leakage-engine.git"

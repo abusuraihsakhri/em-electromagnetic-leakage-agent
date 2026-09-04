@@ -259,11 +259,11 @@ class ShieldingEngine:
         return res
 
 # =============================================================================
-# 6. TEMPEST
+# 6. CERTIFICATION TEST SUITE
 # =============================================================================
 @dataclass
-class TempestEngineResult:
-    feature_name: str = "Tempest"
+class CertificationTestSuiteEngineResult:
+    feature_name: str = "Certification Test Suite"
     status: str = "OPTIMAL"
     score: float = 0.0
     metrics: Dict[str, Any] = field(default_factory=dict)
@@ -271,16 +271,16 @@ class TempestEngineResult:
     recommendations: List[str] = field(default_factory=list)
     timestamp: str = field(default_factory=lambda: datetime.datetime.now(datetime.timezone.utc).isoformat())
 
-class TempestEngine:
+class CertificationTestSuiteEngine:
     """
-    Tempest: **Description:** Certification: Test: Suite: : Generate: compliance: test: reports: for: AMSG: 788: and: SDIP-27: Level:
+    Certification Test Suite: Generate compliance test reports for AMSG 788 and SDIP-27 Level standards.
     """
     def __init__(self, threshold: float = 1.0, config: Optional[Dict[str, Any]] = None):
         self.threshold = threshold
         self.config = config or {}
-        self.history: List[TempestEngineResult] = []
+        self.history: List[CertificationTestSuiteEngineResult] = []
 
-    def evaluate(self, primary_value: float, secondary_value: float = 0.0, **kwargs) -> TempestEngineResult:
+    def evaluate(self, primary_value: float, secondary_value: float = 0.0, **kwargs) -> CertificationTestSuiteEngineResult:
         alerts = []
         recs = []
         status = "OPTIMAL"
@@ -288,17 +288,17 @@ class TempestEngine:
 
         if primary_value > self.threshold * 2:
             status = "CRITICAL_ALERT"
-            alerts.append(f"Tempest: Primary value {primary_value:.2f} breached critical threshold ({self.threshold * 2:.2f})")
+            alerts.append(f"Certification Test Suite: Primary value {primary_value:.2f} breached critical threshold ({self.threshold * 2:.2f})")
             recs.append("Initiate immediate protocol review and escalate to attending lead.")
         elif primary_value > self.threshold:
             status = "WARNING"
-            alerts.append(f"Tempest: Value {primary_value:.2f} exceeds baseline threshold ({self.threshold:.2f})")
+            alerts.append(f"Certification Test Suite: Value {primary_value:.2f} exceeds baseline threshold ({self.threshold:.2f})")
             recs.append("Increase monitoring frequency and perform secondary verification.")
         else:
             recs.append("Parameters nominal under standard operating bounds.")
 
-        res = TempestEngineResult(
-            feature_name="Tempest",
+        res = CertificationTestSuiteEngineResult(
+            feature_name="Certification Test Suite",
             status=status,
             score=score,
             metrics={"primary": primary_value, "secondary": secondary_value, **kwargs},
@@ -369,7 +369,7 @@ class EmelectromagneticleakageagentEnrichmentSuite:
         self.rfengine = RfEngine()
         self.sidechannelengine = SidechannelEngine()
         self.shieldingengine = ShieldingEngine()
-        self.tempestengine = TempestEngine()
+        self.certificationtestsuite = CertificationTestSuiteEngine()
         self.realtimeengine = RealtimeEngine()
 
     def execute_all(self, primary_val: float = 1.5, secondary_val: float = 0.5) -> Dict[str, Any]:
@@ -379,7 +379,7 @@ class EmelectromagneticleakageagentEnrichmentSuite:
         results["RfEngine"] = self.rfengine.evaluate(primary_val, secondary_val)
         results["SidechannelEngine"] = self.sidechannelengine.evaluate(primary_val, secondary_val)
         results["ShieldingEngine"] = self.shieldingengine.evaluate(primary_val, secondary_val)
-        results["TempestEngine"] = self.tempestengine.evaluate(primary_val, secondary_val)
+        results["CertificationTestSuiteEngine"] = self.certificationtestsuite.evaluate(primary_val, secondary_val)
         results["RealtimeEngine"] = self.realtimeengine.evaluate(primary_val, secondary_val)
         return results
 

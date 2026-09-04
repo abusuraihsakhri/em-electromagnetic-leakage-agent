@@ -12,7 +12,7 @@ from enrichment import (
     RfEngine,
     SidechannelEngine,
     ShieldingEngine,
-    TempestEngine,
+    CertificationTestSuiteEngine,
     RealtimeEngine,
     EmelectromagneticleakageagentEnrichmentSuite,
     enrichment_suite,
@@ -32,3 +32,19 @@ def test_enrichment_threshold_escalation():
     for k, v in res.items():
         assert v.status in ["WARNING", "CRITICAL_ALERT"]
         assert len(v.alerts) > 0
+
+def test_enrichment_suite_has_unique_engines():
+    """Verify the enrichment suite has all unique engine names (no duplicate keys)."""
+    suite = EmelectromagneticleakageagentEnrichmentSuite()
+    res = suite.execute_all(primary_val=0.5, secondary_val=0.2)
+    # All 7 engines should produce unique keys
+    expected_keys = {
+        "EnrichmentIdeasImplementationPlansEngine",
+        "TempestEngine",
+        "RfEngine",
+        "SidechannelEngine",
+        "ShieldingEngine",
+        "CertificationTestSuiteEngine",
+        "RealtimeEngine",
+    }
+    assert set(res.keys()) == expected_keys

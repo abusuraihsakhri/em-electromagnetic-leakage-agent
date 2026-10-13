@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Em Electromagnetic Leakage Engine — Operations Console</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #090d16;
@@ -20,11 +19,13 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
             background: var(--bg);
             color: var(--text);
-            padding: 2rem;
+            padding: clamp(0.75rem, 2vw, 1.5rem);
             min-height: 100vh;
+            max-width: 1280px;
+            margin: auto;
         }
         .header {
             display: flex;
@@ -49,13 +50,13 @@
         .grid {
             display: grid;
             grid-template-columns: 1fr 1.2fr;
-            gap: 1.5rem;
+            gap: 1rem;
         }
         .card {
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 1.5rem;
+            padding: 1.2rem;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
         .card h2 {
@@ -78,7 +79,21 @@
             font-family: inherit;
             font-size: 0.9rem;
         }
-        input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+        input:focus-visible, textarea:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        input[type="checkbox"] { width: auto; margin-right: 0.5rem; accent-color: var(--accent); }
+        .hint { color: var(--text-muted); margin: 0.75rem 0; font-size: 0.88rem; line-height: 1.45; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        @media (max-width: 850px) {
+            .grid { grid-template-columns: 1fr; }
+            .metrics-bar { grid-template-columns: repeat(2, minmax(0,1fr)); }
+            .header { flex-wrap: wrap; gap: 0.75rem; }
+            .terminal { height: 320px; }
+        }
+        @media (max-width: 420px) {
+            .metrics-bar { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+            .metric-box { padding: 0.6rem; }
+            .metric-val { font-size: 1.1rem; }
+        }
         .btn {
             background: var(--accent);
             color: #fff;
@@ -96,7 +111,7 @@
             border: 1px solid var(--border);
             border-radius: 8px;
             padding: 1rem;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
             font-size: 0.85rem;
             color: #10b981;
             height: 380px;
@@ -125,111 +140,155 @@
     <div class="header">
         <div class="header-title">
             <h1>Em Electromagnetic Leakage Engine</h1>
-            <p>Domain: Clinical & Cryptographic AI | Standard: CAP / CLSI / NIST Standards | LabMind-Atlas Architecture</p>
+            <p>Educational EM leakage threshold evaluator · Browser-only deterministic analysis</p>
         </div>
         <div>
-            <span class="badge">Air-Gapped Active</span>
-            <span class="badge" style="background: rgba(16,185,129,0.2); color: #10b981; border-color: #10b981;">Zero-PHI Guard Active</span>
+            <span class="badge">Local browser mode</span>
         </div>
     </div>
 
     <div class="metrics-bar">
         <div class="metric-box">
             <div class="metric-label">System Status</div>
-            <div class="metric-val" style="color: var(--success);" id="m-status">OPTIMAL</div>
+            <div class="metric-val" style="color: var(--success);" id="m-status">READY</div>
         </div>
         <div class="metric-box">
             <div class="metric-label">Tasks Processed</div>
-            <div class="metric-val" id="m-tasks">142</div>
+            <div class="metric-val" id="m-tasks">0</div>
         </div>
         <div class="metric-box">
-            <div class="metric-label">Audit Blocks Signed</div>
-            <div class="metric-val" id="m-audit">142</div>
+            <div class="metric-label">Elevated / Critical</div>
+            <div class="metric-val" id="m-audit">0</div>
         </div>
         <div class="metric-box">
-            <div class="metric-label">PHI Interceptions</div>
-            <div class="metric-val" style="color: var(--accent);" id="m-phi">0</div>
+            <div class="metric-label">Local Execution</div>
+            <div class="metric-val" style="color: var(--accent);" id="m-phi">No uploads</div>
         </div>
     </div>
 
     <div class="grid">
         <div class="card">
-            <h2>⚙️ Dispatch Distributed Component Audit</h2>
+            <h2>Evaluate measurement</h2>
+            <p class="hint">Illustrative thresholds only. This interface does not measure RF emissions, perform TEMPEST certification, or create HMAC-signed records. Values stay in your browser.</p>
             <div class="form-group">
-                <label>Task / Sample ID</label>
+                <label for="task_id">Task / Sample ID</label>
                 <input type="text" id="task_id" value="TASK-2026-LIVE-01">
             </div>
             <div class="form-group">
-                <label>Target Identifier</label>
+                <label for="target_id">Target Identifier</label>
                 <input type="text" id="target_id" value="SPECIMEN-ALPHA-77">
             </div>
             <div class="form-group">
-                <label>Primary Measurement / Value</label>
-                <input type="number" id="primary_metric" value="29.4" step="0.1">
+                <label for="primary_metric">Primary Measurement / Value</label>
+                <input type="number" id="primary_metric" value="29.4" step="any" required>
             </div>
             <div class="form-group">
-                <label>Secondary Metric / Kinetic Index</label>
-                <input type="number" id="secondary_metric" value="14.8" step="0.1">
+                <label for="secondary_metric">Secondary Metric / Kinetic Index</label>
+                <input type="number" id="secondary_metric" value="14.8" step="any" required>
             </div>
             <div class="form-group">
-                <label>Status / Phenotype Descriptor</label>
+                <label for="status_descriptor">Status Descriptor</label>
                 <input type="text" id="status_descriptor" value="DISCORDANT_ANOMALY">
             </div>
             <div class="form-group">
-                <label><input type="checkbox" id="is_critical" checked> Trigger Emergency / Critical Flag</label>
+                <label for="is_critical"><input type="checkbox" id="is_critical" checked> Critical flag</label>
             </div>
-            <button class="btn" onclick="runAudit()">Execute Distributed Component Audit</button>
+            <button class="btn" type="button" onclick="runAudit()">Evaluate locally</button>
         </div>
 
         <div class="card">
-            <h2>📊 Real-Time Consensus Dossier & Audit Log</h2>
-            <div class="terminal" id="outputConsole">// Em Electromagnetic Leakage Engine Operations Console Ready
-// Connection established with Air-Gapped Supervisor
-// Cryptographic HMAC-SHA256 audit ledger loaded.
-// Ready for live task payload dispatch...</div>
+            <h2>Evaluation result</h2>
+            <div class="terminal" id="outputConsole" aria-live="polite" role="status">Ready for local threshold evaluation. No server connection is required.</div>
+            <button class="btn" type="button" id="downloadBtn" style="margin-top: 0.8rem;" onclick="downloadReport()" disabled>Download result (JSON)</button>
         </div>
     </div>
 
     <script>
-        async function runAudit() {
-            const consoleEl = document.getElementById('outputConsole');
-            consoleEl.innerText = "// Dispatching task across specialized workers...
-// Invoking InvariantQCWorker, SafetyEscalationWorker, ProtocolWorker...";
+        "use strict";
+        let lastReport = null;
+        let total = 0;
+        let flagged = 0;
 
-            const payload = {
-                task_id: document.getElementById('task_id').value,
-                target_identifier: document.getElementById('target_id').value,
-                primary_metric: parseFloat(document.getElementById('primary_metric').value),
-                secondary_metric: parseFloat(document.getElementById('secondary_metric').value),
-                status_descriptor: document.getElementById('status_descriptor').value,
-                is_critical_flag: document.getElementById('is_critical').checked
-            };
-
-            try {
-                const res = await fetch('/api/audit', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-                consoleEl.innerText = JSON.stringify(data, null, 2);
-                document.getElementById('m-tasks').innerText = parseInt(document.getElementById('m-tasks').innerText) + 1;
-                document.getElementById('m-audit').innerText = parseInt(document.getElementById('m-audit').innerText) + 1;
-            } catch (err) {
-                consoleEl.innerText = "// Offline / Simulation Output:\n" + JSON.stringify({
-                    dossier_id: "DOSSIER-SIM-" + Math.floor(Math.random()*10000),
-                    system: "em-electromagnetic-leakage-engine",
-                    domain: "Clinical & Cryptographic AI",
-                    task_id: payload.task_id,
-                    overall_urgency: payload.is_critical_flag ? "CRITICAL_STAT_PANIC" : "ELEVATED_RISK",
-                    integrity_status: "DISCORDANT_ANOMALY",
-                    alerts: [
-                        { worker: "InvariantQCWorker", alert: "Primary metric exceeds upper reference bound" },
-                        { worker: "SafetyEscalationWorker", alert: "Critical emergency interlock flag active" }
-                    ],
-                    audit_hash: "HMAC_SHA256_e83f9a72b941d6c381f9"
-                }, null, 2);
+        function evaluateLocally(payload) {
+            const alerts = [];
+            function addAlert(origin_worker, urgency, summary, technical_details) {
+                alerts.push({ origin_worker, urgency, summary, technical_details });
             }
+            if (payload.primary_metric > 25) {
+                addAlert("InvariantQCWorker", "ELEVATED_RISK", "Primary Metric Threshold Exceeded",
+                    "Primary measurement exceeds illustrative upper bound 25.");
+            }
+            if (payload.is_critical_flag || payload.secondary_metric > 12) {
+                addAlert("SafetyEscalationWorker", payload.is_critical_flag ? "CRITICAL_STAT_PANIC" : "ELEVATED_RISK",
+                    "Safety Threshold Triggered", "Critical flag is set or secondary measurement exceeds 12.");
+            }
+            if (["DISCORDANT", "ANOMALY", "MUTANT", "VIOLATION", "FAIL", "REJECT"].some(
+                word => payload.status_descriptor.toUpperCase().includes(word))) {
+                addAlert("ProtocolConformanceWorker", "ELEVATED_RISK",
+                    "Status Descriptor Flagged", "Status descriptor contains a configured anomaly keyword.");
+            }
+            const critical = alerts.filter(a => a.urgency === "CRITICAL_STAT_PANIC").length;
+            const overall = critical ? "CRITICAL_STAT_PANIC" : alerts.length ? "ELEVATED_RISK" : "ROUTINE";
+            return {
+                mode: "LOCAL_BROWSER_ONLY",
+                task_id: payload.task_id,
+                target_identifier: payload.target_identifier,
+                overall_urgency: overall,
+                integrity_status: critical ? "RECALIBRATION_REQUIRED" : alerts.length ? "DISCORDANT_ANOMALY" : "VALIDATED_OPTIMAL",
+                total_alerts: alerts.length,
+                critical_alerts_count: critical,
+                alerts,
+                audit_hash: null,
+                audit_signed: false,
+                disclaimer: "Illustrative rule evaluation; not a measurement, certification, or cryptographic audit.",
+                timestamp: new Date().toISOString()
+            };
+        }
+
+        function runAudit() {
+            const output = document.getElementById("outputConsole");
+            const taskId = document.getElementById("task_id").value.trim();
+            const targetId = document.getElementById("target_id").value.trim();
+            const primaryInput = document.getElementById("primary_metric").value.trim();
+            const secondaryInput = document.getElementById("secondary_metric").value.trim();
+            const primary = Number(primaryInput);
+            const secondary = Number(secondaryInput);
+            if (!taskId || !targetId || !primaryInput || !secondaryInput ||
+                !Number.isFinite(primary) || !Number.isFinite(secondary)) {
+                output.textContent = "Please enter non-empty IDs and finite numeric measurements.";
+                lastReport = null;
+                document.getElementById("downloadBtn").disabled = true;
+                return;
+            }
+            const payload = {
+                task_id: taskId,
+                target_identifier: targetId,
+                primary_metric: primary,
+                secondary_metric: secondary,
+                status_descriptor: document.getElementById("status_descriptor").value,
+                is_critical_flag: document.getElementById("is_critical").checked
+            };
+            lastReport = evaluateLocally(payload);
+            total++;
+            if (lastReport.overall_urgency !== "ROUTINE") flagged++;
+            output.textContent = JSON.stringify(lastReport, null, 2);
+            document.getElementById("m-tasks").textContent = String(total);
+            document.getElementById("m-audit").textContent = String(flagged);
+            document.getElementById("m-status").textContent = lastReport.overall_urgency;
+            document.getElementById("downloadBtn").disabled = false;
+        }
+
+        function downloadReport() {
+            if (!lastReport) return;
+            const blob = new Blob([JSON.stringify(lastReport, null, 2) + "\n"], {type:"application/json"});
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "em-leakage-evaluation.json";
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
         }
     </script>
 </body>

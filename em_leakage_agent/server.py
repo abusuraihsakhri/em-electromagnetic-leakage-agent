@@ -11,7 +11,8 @@ coordinator = EMLeakageCoordinator()
 def create_app():
     try:
         from fastapi import FastAPI
-        from pydantic import BaseModel
+        from pydantic import BaseModel, Field, field_validator
+        import math
 
         app = FastAPI(
             title="Screaming Channels: RF / Electromagnetic Cryptographic Leakage Agent",
@@ -26,7 +27,14 @@ def create_app():
             secondary_metric: float = 14.2
             status_descriptor: str = "DISCORDANT_ANOMALY"
             is_critical_flag: bool = True
-            attributes: Dict[str, Any] = {}
+            attributes: Dict[str, Any] = Field(default_factory=dict)
+
+            @field_validator("primary_metric", "secondary_metric")
+            @classmethod
+            def reject_non_finite(cls, value: float):
+                if not math.isfinite(value):
+                    raise ValueError("Metric must be finite")
+                return value
 
         class ChatRequest(BaseModel):
             query: str

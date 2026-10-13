@@ -31,3 +31,17 @@ jobs:
           path: web
       - id: deployment
         uses: actions/deploy-pages@v4
+      - name: Verify published application
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          for attempt in {1..12}; do
+            if curl --fail --silent --show-error --location "${PAGE_URL}" -o /tmp/em-console.html &&
+               grep -q 'LOCAL_BROWSER_ONLY' /tmp/em-console.html; then
+              echo "Published console responds with current application HTML."
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Published console did not serve the expected application." >&2
+          exit 1

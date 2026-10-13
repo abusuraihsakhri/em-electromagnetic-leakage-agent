@@ -1,5 +1,7 @@
 # EM Electromagnetic Leakage Agent
 
+### [Open the Live Application →](https://abusuraihsakhri.github.io/em-electromagnetic-leakage-agent/)
+
 A deterministic, illustrative threshold evaluator for hardware-security telemetry. The repository contains a browser console, a Python CLI, a FastAPI service and a separate legacy frontier evaluator. **It does not ingest RF signals, recover cryptographic keys, implement TEMPEST tests, or certify compliance.** The built-in bounds are example values, not calibrated EM emission limits.
 
 ## Browser console

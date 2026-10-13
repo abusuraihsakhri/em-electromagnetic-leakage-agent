@@ -9,10 +9,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml .
-RUN pip install --no-cache-dir fastapi uvicorn pydantic pytest
+COPY pyproject.toml README.md ./
+COPY agents/ ./agents/
+COPY em_leakage_agent/ ./em_leakage_agent/
+COPY cli.py simulator.py enrichment.py ./
+RUN pip install --no-cache-dir ".[api]"
 
-COPY . .
+COPY web/ ./web/
 
 EXPOSE 8000
 

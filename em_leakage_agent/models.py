@@ -4,6 +4,7 @@ Domain: Hardware Security
 Standard: TEMPEST / NATO SDIP-27 Standards
 """
 import datetime
+import math
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional, Any
@@ -25,6 +26,19 @@ class FrontierPayload:
     is_critical_flag: bool = False
     attributes: Dict[str, Any] = field(default_factory=dict)
     timestamp: str = field(default_factory=lambda: datetime.datetime.now(datetime.timezone.utc).isoformat())
+
+    def __post_init__(self):
+        for key in ("task_id", "target_identifier"):
+            value = getattr(self, key)
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(f"{key} must be a non-empty string")
+            setattr(self, key, value.strip())
+        for key in ("primary_metric", "secondary_metric"):
+            value = getattr(self, key)
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+                raise ValueError(f"{key} must be a finite number")
+        if not isinstance(self.attributes, dict):
+            raise ValueError("attributes must be a dictionary")
 
 
 @dataclass

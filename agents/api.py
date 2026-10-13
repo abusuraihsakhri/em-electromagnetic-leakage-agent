@@ -3,7 +3,7 @@ FastAPI REST API Server for Em Electromagnetic Leakage Agent.
 """
 import os
 import secrets
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from fastapi import FastAPI, HTTPException, Depends, Header, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -24,7 +24,7 @@ class ChatRequest(BaseModel):
     query: str
 
 
-def require_api_token(x_api_key: str | None = Header(default=None)):
+def require_api_token(x_api_key: Optional[str] = Header(default=None)):
     """Authenticate sensitive routes when API_AUTH_TOKEN is configured."""
     expected = os.getenv("API_AUTH_TOKEN")
     if expected and (x_api_key is None or not secrets.compare_digest(x_api_key, expected)):

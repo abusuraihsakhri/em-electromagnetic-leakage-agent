@@ -1,195 +1,58 @@
-# Em Electromagnetic Leakage Agent
+# EM Electromagnetic Leakage Agent
 
-> **Domain:** Hardware Security & Electromagnetic Side-Channel Analysis
-> **Standards:** TEMPEST / NATO SDIP-27 / CAP / CLSI / ISO
+A deterministic, illustrative threshold evaluator for hardware-security telemetry. The repository contains a browser console, a Python CLI, a FastAPI service and a separate legacy frontier evaluator. **It does not ingest RF signals, recover cryptographic keys, implement TEMPEST tests, or certify compliance.** The built-in bounds are example values, not calibrated EM emission limits.
 
-<div align="center">
+## Browser console
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-3776AB.svg?logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688.svg?logo=fastapi&logoColor=white)
-![Audit Trail](https://img.shields.io/badge/Audit-HMAC--SHA256_Tamper--Evident-brightgreen.svg)
-![Zero-PHI Guard](https://img.shields.io/badge/Guard-Zero--PHI_Outbound-blue.svg)
-![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg?logo=docker&logoColor=white)
+Open `web/index.html` locally to evaluate measurements without a server. The browser applies the same primary worker thresholds: primary > 25, secondary > 12 or a critical flag, and configured anomaly keywords. It displays a structured result that can be downloaded as JSON. **Browser output is not HMAC-signed**; values are processed locally and are not uploaded by the page. A GitHub Pages deployment workflow is included, but public availability must be checked after deployment.
 
-</div>
+## Python setup
 
----
-
-## Overview
-
-Em Electromagnetic Leakage Agent is a multi-agent evaluation system for analyzing electromagnetic side-channel leakage, RF emissions, and hardware security compliance. It processes task payloads through specialized worker agents that check safety boundaries, protocol conformance, and invariant thresholds.
-
-The system exposes:
-- A CLI for interactive and batch evaluation
-- A FastAPI REST API for programmatic access
-- A WebSocket telemetry streamer for real-time monitoring
-- Prometheus-compatible operational metrics
-
----
-
-## Architecture
-
-```
-em-electromagnetic-leakage-agent/
-├── agents/                  # Core agent framework (Pydantic-based)
-│   ├── __init__.py          # Package version
-│   ├── base.py              # PHI guard, HMAC audit trail, security
-│   ├── models.py            # Data models with input validation
-│   ├── workers.py           # Specialized evaluation workers
-│   ├── supervisor.py        # Multi-agent orchestrator
-│   ├── api.py               # FastAPI REST endpoints
-│   ├── metrics.py           # Prometheus metrics collector
-│   ├── learning.py          # Bayesian calibration engine
-│   ├── llm_factory.py       # LLM provider adapter (mock by default)
-│   └── streamer.py          # WebSocket telemetry broadcaster
-├── em_leakage_agent/        # Frontier domain engine (dataclass-based)
-│   ├── models.py            # Frontier payload definitions
-│   ├── engine.py            # Core algorithmic engine
-│   ├── agents.py            # Sub-agent implementations
-│   ├── cli.py               # CLI for frontier engine
-│   └── server.py            # FastAPI server factory
-├── tests/                   # Pytest test suite
-├── web/index.html           # Operations console (static HTML)
-├── cli.py                   # Primary CLI entry point
-├── simulator.py             # Stress testing simulator
-├── enrichment.py            # Additional enrichment engines
-└── Dockerfile               # Container build
-```
-
----
-
-## Installation
+Python 3.9+ (CI tests 3.10–3.12):
 
 ```bash
-# Clone the repository
 git clone https://github.com/abusuraihsakhri/em-electromagnetic-leakage-agent.git
 cd em-electromagnetic-leakage-agent
-
-# Install dependencies
-pip install fastapi uvicorn pydantic pytest
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -e ".[api,test]"
+pytest -q
 ```
 
----
-
-## Configuration
-
-| Environment Variable | Description | Default |
-|:---------------------|:------------|:--------|
-| `AUDIT_SECRET_KEY` | HMAC-SHA256 signing key for audit trail | Random per-process (ephemeral) |
-| `MODEL_PROVIDER` | LLM provider (`mock`, `ollama`, `claude`, `openai`) | `mock` |
-
-> **Security Note:** Always set `AUDIT_SECRET_KEY` in production to ensure audit signature reproducibility across restarts.
-
----
-
-## CLI Usage
-
-### Single Task Evaluation
-```bash
-python cli.py audit --task-id TASK-001 --target KEY-01 --primary 28.5 --secondary 14.2 --critical --status DISCORDANT
-```
-
-### Supervisory Chat
-```bash
-python cli.py chat "What is the system status?"
-```
-
-### Batch CSV Processing
-```bash
-python cli.py batch -i sample.csv -o results.csv
-```
-
-### Verify Audit Integrity
-```bash
-python cli.py verify-audit
-```
-
-### Start REST API Server
-```bash
-python cli.py serve --host 127.0.0.1 --port 8000
-```
-
----
-
-## REST API Endpoints
-
-| Method | Endpoint | Description |
-|:-------|:---------|:------------|
-| `GET` | `/health` | Health check |
-| `GET` | `/metrics` | Prometheus operational metrics |
-| `POST` | `/api/audit` | Submit task for evaluation |
-| `POST` | `/api/chat` | Supervisory chat query |
-| `GET` | `/api/audit/logs` | Retrieve and verify audit trail |
-
-### Example API Request
-```bash
-curl -X POST http://localhost:8000/api/audit \
-  -H "Content-Type: application/json" \
-  -d '{
-    "task_id": "TASK-2026-001",
-    "target_identifier": "KEY-01",
-    "primary_metric": 28.5,
-    "secondary_metric": 14.2,
-    "status_descriptor": "DISCORDANT_ANOMALY",
-    "is_critical_flag": true
-  }'
-```
-
----
-
-## Input Data Schema
-
-| Field | Type | Description | Requirement |
-|:------|:-----|:------------|:------------|
-| `task_id` | `str` | Unique task identifier | Required |
-| `target_identifier` | `str` | Target entity key | Required |
-| `primary_metric` | `float` | Primary measurement (finite) | Required |
-| `secondary_metric` | `float` | Secondary measurement (finite) | Optional (default: `0.0`) |
-| `status_descriptor` | `str` | Status or phenotype code | Optional (default: `NOMINAL`) |
-| `is_critical_flag` | `bool` | Emergency escalation flag | Optional (default: `false`) |
-
-> **Validation:** Metric values must be finite (NaN and Infinity are rejected). Identifier fields are stripped and must not be empty.
-
----
-
-## Testing
+Run the primary workflow:
 
 ```bash
-# Run full test suite
-pytest -v
-
-# Run with coverage
-pytest -v --cov=agents --cov=em_leakage_agent
+em-electromagnetic-leakage-engine audit --task-id TASK-001 --target KEY-01 --primary 28.5 --secondary 14.2 --critical --status DISCORDANT
+em-electromagnetic-leakage-engine batch -i sample.csv -o results.csv
+em-electromagnetic-leakage-engine verify-audit
+em-electromagnetic-leakage-engine serve --host 127.0.0.1 --port 8000
 ```
 
----
+The legacy frontier workflow is available via `em-leakage-frontier` (its thresholds differ). The CLI also supports `chat`, which is a deterministic mock response, **not** a remote LLM or live analysis. The primary API provides `GET /health`, `GET /metrics`, `POST /api/audit`, `POST /api/chat` and `GET /api/audit/logs`. API docs are available at `/docs` on a running server.
 
-## Simulation & Benchmarking
+## Security and data handling
+
+The Python audit logger creates a chained HMAC-SHA256 record for each successful evaluation and verifies each signature. Its records are held **in process memory**, so they disappear on restart; supplying `AUDIT_SECRET_KEY` does not make them persistent. The regex-based identifier guard provides limited screening, **not verified de-identification or HIPAA compliance**. Do not provide sensitive patient or cryptographic information. The mock LLM makes no external model calls.
+
+For multi-user or network-facing deployment, configure a strong independent `API_AUTH_TOKEN` (the API expects `X-API-Key`) and `AUDIT_SECRET_KEY`; terminate HTTPS at a trusted proxy and add rate limiting and durable audit storage as needed. The API is intentionally unauthenticated when `API_AUTH_TOKEN` is absent, for local development only. The Docker Compose configuration requires both secrets and binds to localhost.
 
 ```bash
-# Run stress simulation (default: 100 tasks)
-python simulator.py 1000
+cp .env.example .env
+# Fill .env with two independently generated secret values.
+docker compose up --build
 ```
 
----
+Treat any key previously committed to source control as compromised and replace it. Do not commit a populated `.env`.
 
-## Container Deployment
+## Development and limitations
 
-```bash
-# Build and run with Docker
-docker build -t em-electromagnetic-leakage-agent .
-docker run -p 8000:8000 -e AUDIT_SECRET_KEY=your-secret-key em-electromagnetic-leakage-agent
+- Primary stack: Pydantic 2, FastAPI (optional), Uvicorn (optional), pytest, standard-library HMAC.
+- Browser stack: static HTML/CSS/JavaScript; no Pyodide required.
+- The static site can run under GitHub Pages. FastAPI, server-side HMAC, and persistent audit history cannot run on GitHub Pages.
+- No actual EM capture, spectral density calculation, hardware integration, or standards validation is provided.
+- Run `python -m compileall -q agents em_leakage_agent cli.py enrichment.py simulator.py` and `pytest -q` before deployment.
+- The browser uses standard modern DOM, Blob, and download APIs; test on current Chromium/Firefox/Safari.
 
-# Or use Docker Compose
-docker-compose up -d
-```
+## License
 
----
-
-## Security Features
-
-- **Zero-PHI Outbound Interceptor:** Regex-based detection and blocking of SSNs, MRNs, phone numbers, and patient identifiers
-- **HMAC-SHA256 Audit Trail:** Tamper-evident, chained cryptographic audit log with secure key generation
-- **Input Validation:** Rejection of non-finite metric values and empty identifiers
-- **File Operation Safety:** Proper error handling for file not found and permission errors
+MIT (see [LICENSE](LICENSE)).
